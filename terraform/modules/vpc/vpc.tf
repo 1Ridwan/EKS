@@ -1,8 +1,16 @@
+locals {
+  zone1 = "eu-west-2a"
+  zone2 = "eu-west-2b"
+  eks_name = "cluster-lab"
+}
+
+
+
 # create vpc
 
 resource "aws_vpc" "main" {
-  cidr_block = var.base_cidr
-  region = var.vpc_region
+  cidr_block = "10.0.0.0/16"
+  region = var.region
   tags = {
     Name = "main"
   }
@@ -17,8 +25,8 @@ resource "aws_subnet" "private_zone1" {
 
   tags ={
     name = "private-$(local.zone1)"
-    kubernetes.io/role/internal-elb = "1"
-    kubernetes.io/cluster/local.eks_name = "owned"
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/${local.eks_name}" = "owned"
   }
 }
 
@@ -29,8 +37,8 @@ resource "aws_subnet" "private_zone2" {
 
   tags ={
     name = "private-$(local.zone2)"
-    kubernetes.io/role/internal-elb = "1"
-    kubernetes.io/cluster/local.eks_name = "owned"
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/${local.eks_name}" = "owned"
   }
 }
 
@@ -43,10 +51,12 @@ resource "aws_subnet" "public_zone1" {
   map_public_ip_on_launch = true
 
   tags ={
-    name = "public-$(local.zone1)"
-    kubernetes.io/role/elb = "1"
-    kubernetes.io/cluster/local.eks_name = "owned"
+    "name" = "public-{local.zone1}"
+    "kubernetes.io/role/elb" = "1"
+    "kubernetes.io/cluster/${local.eks_name}" = "owned"
   }
+
+  
 }
 
 resource "aws_subnet" "public_zone2" {
@@ -56,9 +66,9 @@ resource "aws_subnet" "public_zone2" {
   map_public_ip_on_launch = true
 
   tags ={
-    name = "public-$(local.zone2)"
-    kubernetes.io/role/elb = "1"
-    kubernetes.io/cluster/local.eks_name = "owned"
+    "name" = "public-${local.zone2}"
+    "kubernetes.io/role/elb" = "1"
+    "kubernetes.io/cluster/${local.eks_name}" = "owned"
   }
 }
 
@@ -76,7 +86,7 @@ resource "aws_internet_gateway" "main" {
 
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public_zone1
+  subnet_id     = aws_subnet.public_zone1.id
 
   tags = {
     Name = "NAT-gw-az1"
