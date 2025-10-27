@@ -38,8 +38,8 @@ resource "aws_eks_cluster" "eks" {
     endpoint_public_access = true
 
     subnet_ids = [
-      aws_subnet.private_zone1.id,
-      aws_subnet.private_zone2.id
+      var.private_subnet_zone1_id,
+      var.private_subnet_zone2_id
     ]
   }
 

@@ -33,18 +33,12 @@ resource "aws_iam_role_policy_attachment" "amazon_ec2_container_registry_read_on
 
 resource "aws_eks_node_group" "general" {
   cluster_name    = aws_eks_cluster.eks.name
-
   node_role_arn   = aws_iam_role.nodes.arn
-  subnet_ids      = aws_subnet.example[*].id
+
   subnet_ids = [
-        aws_subnet.private_zone1.id,
-        aws_subnet.private_zone2.id
+      var.private_subnet_zone1_id,
+      var.private_subnet_zone2_id
     ]
-
-
-
-
-
   scaling_config {
     desired_size = 1
     max_size     = 10
