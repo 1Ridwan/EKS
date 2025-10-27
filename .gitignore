@@ -1,0 +1,54 @@
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Go ---
+# Keep go.mod and go.sum committed!
+/bin/
+/build/
+/dist/
+/coverage/
+/*.exe
+*.test
+*.out
+# If you use workspaces but don’t want to commit them:
+go.work
+go.work.sum
+
+# --- Docker / local env ---
+.env
+.env.*
+*.env
+docker-compose.override.yml
+# Local data dir you might map to /data for Shiori
+data/
+data/**
+
+# --- Terraform ---
+.terraform.lock.hcl
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+# Plans and local vars (often contain secrets)
+*.tfplan
+*.tfvars
+*.tfvars.json
+# Local overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+# CDK for Terraform
+.cdk.tf.out/
+
+# --- Node (only if you add scripts/tools that pull Node deps) ---
+node_modules/
+npm-debug.log*
+yarn-error.log
+.pnpm-store/
