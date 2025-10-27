@@ -1,42 +1,64 @@
-locals {
-  name   = "eks-lab"
-  domain = var.domain
-  region = var.region
+# create vpc
 
-  cluster_name = var.cluster_name
-
-  tags = {
-    Environment = "dev"
-    Project     = "EKS Project"
-    Owner       = "Ridwan"
-  }
-}
-
-resource "aws_vpc" "eks" {
+resource "aws_vpc" "main" {
   cidr_block = var.base_cidr
-  region = var.region
-}
-
-resource "aws_subnet" "set" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
-
-  tags = { 
-      local.tags
+  region = var.vpc_region
+  tags = {
+    Name = "main"
   }
 }
-
 
 # create subnets
 
-resource "aws_subnet" "set" {
-  count             = var.subnet_count
-  vpc_id           = aws_vpc.main.id
-  cidr_block       = cidrsubnet(var.base_cidr, 2, count.index)
-  availability_zone = var.availability_zones[count.index]
+resource "aws_subnet" "private_zone1" {
+  vpc_id = aws_vpc.main.id
+  cidr_block = "10.0.0.0/19"
+  availability_zone = local.zone1
 
-  tags = {
-    Name = "Subnet-${count.index}"
+  tags ={
+    name = "private-$(local.zone1)"
+    kubernetes.io/role/internal-elb = "1"
+    kubernetes.io/cluster/local.eks_name = "owned"
+  }
+}
+
+resource "aws_subnet" "private_zone2" {
+  vpc_id = aws_vpc.main.id
+  cidr_block = "10.0.32.0/19"
+  availability_zone = local.zone2
+
+  tags ={
+    name = "private-$(local.zone2)"
+    kubernetes.io/role/internal-elb = "1"
+    kubernetes.io/cluster/local.eks_name = "owned"
+  }
+}
+
+# create public subnets
+
+resource "aws_subnet" "public_zone1" {
+  vpc_id = aws_vpc.main.id
+  cidr_block = "10.0.32.0/19"
+  availability_zone = local.zone1
+  map_public_ip_on_launch = true
+
+  tags ={
+    name = "public-$(local.zone1)"
+    kubernetes.io/role/elb = "1"
+    kubernetes.io/cluster/local.eks_name = "owned"
+  }
+}
+
+resource "aws_subnet" "public_zone2" {
+  vpc_id = aws_vpc.main.id
+  cidr_block = "10.0.64.0/19"
+  availability_zone = local.zone2
+  map_public_ip_on_launch = true
+
+  tags ={
+    name = "public-$(local.zone2)"
+    kubernetes.io/role/elb = "1"
+    kubernetes.io/cluster/local.eks_name = "owned"
   }
 }
 
@@ -48,4 +70,21 @@ resource "aws_internet_gateway" "main" {
   tags = {
     Name = "main-igw"
   }
+}
+
+# Create NAT gateway in public subnets
+
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public_zone1
+
+  tags = {
+    Name = "NAT-gw-az1"
+  }
+
+  depends_on = [aws_internet_gateway.main]
+  }
+
+resource "aws_eip" "nat" {
+  domain   = "vpc"
 }

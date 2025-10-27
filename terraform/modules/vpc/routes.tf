@@ -9,6 +9,8 @@ resource "aws_route_table" "public" {
   }
 }
 
+# assign route tables to public subnets
+
 resource "aws_route_table_association" "public_zone1" {
   subnet_id = aws_subnet.public_zone1.id
   route_table_id = aws_route_table.public.id
@@ -30,7 +32,7 @@ resource "aws_route_table" "private" {
   }
 }
 
-# assign route tables to corresponding private subnet in correct az
+# assign route tables to private subnets
 
 resource "aws_route_table_association" "private_zone1" {
   subnet_id      = aws_subnet.private_zone1.id
