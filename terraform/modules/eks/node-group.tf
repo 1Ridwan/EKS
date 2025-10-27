@@ -40,6 +40,10 @@ resource "aws_eks_node_group" "general" {
       var.private_subnet_zone2_id,
     ]
 
+  capacity_type = "ON_DEMAND"
+  ami_type       = "AL2023_x86_64_STANDARD"
+  instance_types = ["t2.medium"]  
+
   scaling_config {
     desired_size = 1
     max_size     = 10
@@ -58,5 +62,5 @@ resource "aws_eks_node_group" "general" {
     aws_iam_role_policy_attachment.amazon_ec2_container_registry_read_only,
   ]
 
-  lifecyce { ignore_changes = [scaling_config[0].desired_size] }
+
 }
