@@ -5,8 +5,9 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "./modules/eks"
-  region = var.region
-  eks_version = var.eks_version
+  source                  = "./modules/eks"
+  eks_version             = var.eks_version
+  private_subnet_zone1_id = module.vpc.private_subnet_zone1_id
+  private_subnet_zone2_id = module.vpc.private_subnet_zone2_id
 
 }

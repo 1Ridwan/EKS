@@ -15,19 +15,19 @@ resource "aws_iam_role" "nodes" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "amazon_eks_worker_node_policy"" {
+resource "aws_iam_role_policy_attachment" "amazon_eks_worker_node_policy" {
   role       = aws_iam_role.nodes.name
-  policy_arn = "arn:aws:iam:aws:policy/AmazonEKSWorkerNodePolicy"
+  policy_arn = "arn:aws:iam:aws::policy/AmazonEKSWorkerNodePolicy"
 }
 
 resource "aws_iam_role_policy_attachment" "amazon_eks_cni_policy" {
   role       = aws_iam_role.nodes.name
-  policy_arn = "arn:aws:iam:aws:policy/AmazonEKS_CNI_Policy"
+  policy_arn = "arn:aws:iam:aws::policy/AmazonEKS_CNI_Policy"
 }
 
 resource "aws_iam_role_policy_attachment" "amazon_ec2_container_registry_read_only" {
   role       = aws_iam_role.nodes.name
-  policy_arn = "arn:aws:iam:aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  policy_arn = "arn:aws:iam:aws::policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 
@@ -37,8 +37,9 @@ resource "aws_eks_node_group" "general" {
 
   subnet_ids = [
       var.private_subnet_zone1_id,
-      var.private_subnet_zone2_id
+      var.private_subnet_zone2_id,
     ]
+
   scaling_config {
     desired_size = 1
     max_size     = 10
@@ -57,7 +58,5 @@ resource "aws_eks_node_group" "general" {
     aws_iam_role_policy_attachment.amazon_ec2_container_registry_read_only,
   ]
 
-  lifecyce {
-      ignore_changes = [scaling_config[0].desired_size]
-  }
+  lifecyce { ignore_changes = [scaling_config[0].desired_size] }
 }
